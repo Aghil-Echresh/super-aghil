@@ -1,40 +1,61 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import os
+import sqlite3
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = 'your-secret-key-change-this'
+# اتصال به دیتابیس (اگر وجود نداشته باشد ساخته می‌شود)
+conn = sqlite3.connect("inventory.db")
+cursor = conn.cursor()
 
-db = SQLAlchemy(app)
+# ایجاد جدول کالاها
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    price REAL NOT NULL,
+    quantity INTEGER NOT NULL
+)
+""")
 
-# Models
-class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
-    address = db.Column(db.String(200))
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    transactions = db.relationship('Transaction', backref='customer', lazy=True, cascade='all, delete-orphan')
+# افزودن کالا
+def add_product(name, price, quantity):
+    cursor.execute("INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)", 
+                   (name, price, quantity))
+    conn.commit()
+    print(f"✅ {name} اضافه شد.")
 
-    def balance(self):
-        total = 0
-        for transaction in self.transactions:
-            if transaction.type == 'sale':
-                total += transaction.amount
-            else:
-                total -= transaction.amount
-        return total
+# حذف کالا
+def delete_product(product_id):
+    cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
+    conn.commit()
+    print(f"❌ کالا با شناسه {product_id} حذف شد.")
 
-    def debt(self):
-        balance = self.balance()
-        return max(0, -balance)
+# بروزرسانی موجودی
+def update_quantity(product_id, new_quantity):
+    cursor.execute("UPDATE products SET quantity = ? WHERE id = ?", (new_quantity, product_id))
+    conn.commit()
+    print(f"🔄 موجودی کالا {product_id} بروزرسانی شد.")
 
-    def credit(self):
-        balance = self.balance()
-        return max(0, balance)
+# نمایش موجودی
+def show_inventory():
+    cursor.execute("SELECT * FROM products")
+    products = cursor.fetchall()
+    print("\n📦 موجودی کالاها:")
+    for row in products:
+        print(f"ID:{row[0]} | نام:{row[1]} | قیمت:{row[2]} | تعداد:{row[3]}")
+
+# هشدار موجودی کم
+def check_low_stock(threshold=5):
+    cursor.execute("SELECT name, quantity FROM products WHERE quantity <= ?", (threshold,))
+    low_stock = cursor.fetchall()
+    for row in low_stock:
+        print(f"⚠️ هشدار: موجودی {row[0]} کم است ({row[1]} عدد باقی مانده).")
+
+# نمونه استفاده
+if __name__ == "__main__":
+    add_product("شیر", 20000, 10)
+    add_product("نان", 5000, 3)
+    show_inventory()
+    check_low_stock()
+    update_quantity(2, 8)
+    show_inventory()        return max(0, balance)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
