@@ -1,50 +1,24 @@
-# سیستم حساب دفتری مشتریان
+# حساب دفتری و موجودی سوپرمارکت
 
-## توضیحات
-یک برنامه وب برای مدیریت حساب دفتری مشتریان به صورت آنلاین.
+این نسخه یک ابزار محلی Python و SQLite است و هیچ اطلاعاتی را به شبکه نمی‌فرستد. **رابط وب قدیمی قابل اجرا نبود و قالب‌های آن در مخزن نبودند**؛ این نسخه رابط خط فرمان دارد و بدون نصب بستهٔ خارجی کار می‌کند.
 
-## ویژگی‌ها
-- ✅ ثبت و مدیریت اطلاعات مشتریان
-- ✅ ثبت تراکنش‌ها (فروش و پرداخت)
-- ✅ محاسبه خودکار بدهی و طلب
-- ✅ گزارش‌های تفصیلی
-- ✅ رابط کاربری ساده و سریع
+## راه‌اندازی
 
-## تکنولوژی
-- **Backend:** Python (Flask)
-- **Database:** SQLite
-- **Frontend:** HTML, CSS, Bootstrap
+با Python 3.10 یا جدیدتر، در پوشهٔ مخزن:
 
-## نصب و اجرا
-
-### الزامات
-- Python 3.8+
-- pip
-
-### مراحل نصب
-
-```bash
-# 1. کلون کردن مخزن
-git clone https://github.com/Aghil-Echresh/super-aghil.git
-cd super-aghil
-
-# 2. ایجاد محیط مجازی
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# یا برای Windows:
-# venv\Scripts\activate
-
-# 3. نصب وابستگی‌ها
-pip install -r requirements.txt
-
-# 4. ایجاد پایگاه داده
-python create_db.py
-
-# 5. اجرای برنامه
-python app.py
+```sh
+python app.py init
+python app.py product-add "شیر" 20000 3
+python app.py products --low 5
+python app.py stock-set 1 10
+python app.py customer-add "مشتری نمونه"
+python app.py entry-add 1 sale 125000
+python app.py entry-add 1 payment 50000
+python app.py balances
+python app.py entries 1
+python -m unittest -v
 ```
 
-سپس مرورگر خود را باز کنید و به `http://localhost:5000` بروید.
+مبالغ را در یک واحد ثابت (مثلاً همه به تومان) وارد کنید. ماندهٔ مثبت بدهی مشتری و ماندهٔ منفی اعتبار مشتری نزد فروشگاه است. داده‌های واقعی یا فایل پشتیبان را در GitHub قرار ندهید.
 
-## مجوز
-MIT
+فایل پیش‌فرض `instance/database.db` است. پیش از کار با دادهٔ قدیمی، یک کپی بگیرید و مسیر آن را با `python app.py --db /path/to/backup.db balances` یا برای موجودی با `python app.py --db /path/to/inventory-copy.db products` بدهید. برنامه هیچ جدولی را حذف نمی‌کند، اما پایگاه‌های دادهٔ جداگانه را هم خودکار ادغام نمی‌کند.

@@ -30,3 +30,8 @@ env/
 *.swo
 *~
 .env
+__pycache__/
+instance/
+*.db
+*.db-wal
+*.db-shm
