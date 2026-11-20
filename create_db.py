@@ -1,5 +1,5 @@
-from app import app, db
+import sys
+from app import main
 
-with app.app_context():
-    db.create_all()
-    print("✅ پایگاه داده ایجاد شد!")
+if __name__ == "__main__":
+    raise SystemExit(main([*sys.argv[1:], "init"]))
